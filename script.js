@@ -1,16 +1,35 @@
-const output = document.getElementById("output");
-const button = document.querySelector("#button");
+// button.addEventListener("click", function() {
+//     write_html();
+// });
 console.log("here")
-button.addEventListener("click", function() {
-    write_html();
-});
 
-function write_html() {
-    // const text = new WordsConstruct(words_all);
-    const questions = new Questions(25, words_all)
-    // questions.print_questions()
-    // delete text;
-    console.log(questions.questions)
+class Interface {
+    constructor() {
+        this.output = document.getElementById("output");
+        this.b1 = document.querySelector("#b1");
+        this.b2 = document.querySelector("#b2");
+        this.b3 = document.querySelector("#b3");
+    }
+
+    write_html(words) {
+        console.log(words)
+        let tmp_1 = "";
+        let tmp_2 = "";
+        const tmp_3 = words.words_simple.join(" ")
+        for (const [_, value] of Object.entries(words.words)) {
+            tmp_1 += value[0] + " "
+            tmp_2 += value[1] + " "
+        }
+        const entries = [tmp_1, tmp_2, tmp_3]
+        this.output.innerHTML = words.camelCase()
+        this.b1.innerHTML = this.pop_random(entries) 
+        this.b2.innerHTML = this.pop_random(entries)
+        this.b3.innerHTML = entries[0]
+    }
+
+    pop_random(array) {
+        return array.splice(Math.floor(Math.random() * array.length), 1)
+    }
 }
 
 class Questions {
@@ -48,7 +67,9 @@ class WordGroup {
         this.count = Math.floor(Math.random() * 3) + 2;
         this.words_all = words_all;
         this.words_grouped = words_grouped;
-        this.words = this.collect_words();
+        this.words_simple = this.collect_words();
+        this.words = this.collect_similar();
+        console.log(words_grouped)
     }
 
     random_word() {
@@ -58,7 +79,6 @@ class WordGroup {
 
     collect_words() {
         const words_tmp = [];
-        const words_return = {};
         for (let i = 1; i <= this.count; i++) {
             while (true) {
                 const word_tmp = this.random_word(this.words_all)
@@ -68,55 +88,68 @@ class WordGroup {
                 }
             }
         }
-        words_tmp.forEach(word => {
+        return words_tmp;
+    }
+
+    collect_similar() {
+        const words_return = {};
+        this.words_simple.forEach(word => {
             words_return[word] = [];
-            let distance = 3;
-            for (let i = 0; i <= 2; i++) {
+            let distance = 1;
+            for (let i = 0; i <= 1; i++) {
+                // monkeyfind
                 let tries = 0
                 while (true) {
-                    const word_rnd = this.find_levenshtein(word, distance);
-                    if (tries % 10 === 0) {
-                        distance += 1;
-                    } else if (tries > 100) {
-                        words_return[word].push(word_rnd)
-                        break
-                    }
-                    if (!words_return[word].includes(word_rnd)) {
-                        words_return[word].push(word_rnd)
-                        break
-                    }
                     tries += 1
+                    const word_rnd = this.find_levenshtein(word, distance);
+                    if (tries % 30 === 0) {
+                        distance += 1;
+                    } else if (tries > 500) {
+                        console.log("uwu")
+                        words_return[word].push(word_rnd)
+                        break
+                    }
+                    if (!word_rnd) { continue }
+                    if (!words_return[word].includes(word_rnd)) {
+                        console.log(tries)
+                        words_return[word].push(word_rnd)
+                        break
+                    }
                 }
             }
         })
         return words_return;
     }
 
+    get_words() {
+
+    }
+
     camelCase() {
-        let words_tmp = [...this.words].map((val, i) => {
+        let words_tmp = [...this.words_simple].map((val, i) => {
             if (i > 0) {
                 return val.substring(0, 1).toUpperCase() + val.substring(1)
             } else {
                 return val
             }
         })
-        console.log(this.words)
         return words_tmp.join("")
     }
 
     snake_case() {
-        return this.words.join("_")
+        return this.words_simple.join("_")
     }
 
-    // monkeyfind
     find_levenshtein(word, distance) {
         const length = this.words_grouped[word.length].length
-        while (true) {
-            const word_rnd = this.words_grouped[word.length][Math.floor(Math.random() * length)]
-            if (this.levenshtein(word, word_rnd) <= distance) {
-                return word_rnd
-            }
+        const word_rnd = this.words_grouped[word.length][Math.floor(Math.random() * length)]
+        if (word_rnd === word) {
+            return false
         }
+        if (this.levenshtein(word, word_rnd) <= distance) {
+            return word_rnd;
+        }
+        return false;
     }
 
     // https://www.30secondsofcode.org/js/s/levenshtein-distance
@@ -138,3 +171,12 @@ class WordGroup {
         return arr[t.length][s.length];
     }
 }
+
+function main() {
+    const count = 20
+    const questions = new Questions(count, words_all)
+    const interface = new Interface()
+    interface.write_html(questions.questions[0])
+}
+
+main()
