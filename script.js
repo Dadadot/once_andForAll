@@ -9,27 +9,40 @@ class Interface {
         this.b1 = document.querySelector("#b1");
         this.b2 = document.querySelector("#b2");
         this.b3 = document.querySelector("#b3");
+        this.words = null;
     }
 
-    write_html(words) {
-        console.log(words)
+    main(words) {
+        this.words = words
+        this.output.innerHTML = words.camelCase()
+        let entries = this.prepare_output()
+        this.b1.innerHTML = entries[0][0]
+        this.b2.innerHTML = entries[1][0]
+        this.b3.innerHTML = entries[2][0]
+    }
+
+    prepare_output() {
         let tmp_1 = "";
         let tmp_2 = "";
-        const tmp_3 = words.words_simple.join(" ")
-        for (const [_, value] of Object.entries(words.words)) {
+        let tmp_3 = this.words.words_simple.join(" ")
+        for (const [_, value] of Object.entries(this.words.words)) {
             tmp_1 += value[0] + " "
             tmp_2 += value[1] + " "
         }
-        const entries = [tmp_1, tmp_2, tmp_3]
-        this.output.innerHTML = words.camelCase()
-        this.b1.innerHTML = this.pop_random(entries) 
-        this.b2.innerHTML = this.pop_random(entries)
-        this.b3.innerHTML = entries[0]
+        let entries = [[tmp_1, false], [tmp_2, false], [tmp_3, true]]
+        return this.shuffle(entries)
     }
 
-    pop_random(array) {
-        return array.splice(Math.floor(Math.random() * array.length), 1)
+    shuffle([...arr]) {
+        let current_index = arr.length - 1
+        let random_index
+        for (let i = current_index; i > 0; i--) {
+            random_index = Math.floor(Math.random() * (current_index + 1));
+            [arr[current_index], arr[random_index]] = [arr[random_index], arr[current_index]]
+        }
+        return arr
     }
+
 }
 
 class Questions {
@@ -69,7 +82,6 @@ class WordGroup {
         this.words_grouped = words_grouped;
         this.words_simple = this.collect_words();
         this.words = this.collect_similar();
-        console.log(words_grouped)
     }
 
     random_word() {
@@ -105,13 +117,11 @@ class WordGroup {
                     if (tries % 30 === 0) {
                         distance += 1;
                     } else if (tries > 500) {
-                        console.log("uwu")
                         words_return[word].push(word_rnd)
                         break
                     }
                     if (!word_rnd) { continue }
                     if (!words_return[word].includes(word_rnd)) {
-                        console.log(tries)
                         words_return[word].push(word_rnd)
                         break
                     }
@@ -119,10 +129,6 @@ class WordGroup {
             }
         })
         return words_return;
-    }
-
-    get_words() {
-
     }
 
     camelCase() {
@@ -176,7 +182,7 @@ function main() {
     const count = 20
     const questions = new Questions(count, words_all)
     const interface = new Interface()
-    interface.write_html(questions.questions[0])
+    interface.main(questions.questions[0])
 }
 
 main()
