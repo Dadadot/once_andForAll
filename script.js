@@ -7,51 +7,50 @@ console.log("here");
 
 class Interface {
     constructor() {
-        this.output = document.getElementById("output");
-        this.b1 = document.querySelector("#b1");
-        this.b2 = document.querySelector("#b2");
-        this.b3 = document.querySelector("#b3");
-        this.words = null;
+        this._output = document.getElementById("output");
+        this._b1 = document.querySelector("#b1");
+        this._b2 = document.querySelector("#b2");
+        this._b3 = document.querySelector("#b3");
+        this._words = null;
     }
 
     main(words) {
-        this.words = words;
-        this.output.innerHTML = words.snake_case();
-        const entries = this.prepare_output();
+        this._words = words;
+        this._output.innerHTML = this._words.snake_case();
+        const entries = this._prepare_output();
         let answer = null;
         entries.forEach((val, key) => {
             if (val[1]) {
                 answer = key + 1;
             }
         });
-        this.b1.innerHTML = entries[0][0];
-        this.b2.innerHTML = entries[1][0];
-        this.b3.innerHTML = entries[2][0];
-        interval = setInterval(user_input, 1000 / FPS);
+        this._b1.innerHTML = entries[0][0];
+        this._b2.innerHTML = entries[1][0];
+        this._b3.innerHTML = entries[2][0];
         return answer;
     }
 
     user_input(answer) {
         result = null;
-        result = this.b1.addEventListener("click", function () {
+    result = this._b1.addEventListener("click", function () {
             answer === 1 ? true : false;
         });
-        this.b2.addEventListener("click", function () {
+        this._b2.addEventListener("click", function () {
             answer === 2 ? true : false;
         });
-        this.b3.addEventListener("click", function () {
+        this._b3.addEventListener("click", function () {
             answer === 2 ? true : false;
         });
         return result ? true : false;
     }
 
-    prepare_output() {
+    _prepare_output() {
         let tmp_1 = "";
         let tmp_2 = "";
-        let tmp_3 = this.words.words_simple.join(" ");
+        let tmp_3 = this._words.words_simple.join(" ");
         let first = true;
         let flip = Math.floor(Math.random() * 2);
-        for (const [key, value] of Object.entries(this.words.words)) {
+        for (const [key, value] of Object.entries(this._words.words)) {
             if (first) {
                 tmp_1 += key + " ";
                 tmp_2 += key + " ";
@@ -73,10 +72,10 @@ class Interface {
             [tmp_2, false],
             [tmp_3, true],
         ];
-        return this.shuffle(entries);
+        return this._shuffle(entries);
     }
 
-    shuffle([...arr]) {
+    _shuffle([...arr]) {
         let current_index = arr.length - 1;
         let random_index;
         for (let i = current_index; i > 0; i--) {
