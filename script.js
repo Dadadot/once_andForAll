@@ -1,7 +1,7 @@
 // button.addEventListener("click", function() {
 //     write_html();
 // });
-console.log("here")
+console.log("here");
 
 class Interface {
     constructor() {
@@ -13,42 +13,56 @@ class Interface {
     }
 
     main(words) {
-        this.words = words
-        this.output.innerHTML = words.camelCase()
-        let entries = this.prepare_output()
-        this.b1.innerHTML = entries[0][0]
-        this.b2.innerHTML = entries[1][0]
-        this.b3.innerHTML = entries[2][0]
+        this.words = words;
+        this.output.innerHTML = words.camelCase();
+        let entries = this.prepare_output();
+        this.b1.innerHTML = entries[0][0];
+        this.b2.innerHTML = entries[1][0];
+        this.b3.innerHTML = entries[2][0];
     }
 
     prepare_output() {
-        let tmp_1 = "";
-        let tmp_2 = "";
-        let tmp_3 = this.words.words_simple.join(" ")
-        for (const [_, value] of Object.entries(this.words.words)) {
-            tmp_1 += value[0] + " "
-            tmp_2 += value[1] + " "
+        const word1 = this.words.words_simple[0];
+        let tmp_1 = ""
+        let tmp_2 = ""
+        let tmp_3 = this.words.words_simple.join(" ");
+        console.log(this.words.words);
+        for (const [key, value] of Object.entries(this.words.words)) {
+            let flip = Math.floor(Math.random() * 2);
+            if ((flip == 0)) {
+                tmp_1 += key + " ";
+                tmp_2 += value[0] + " ";
+            } else {
+                tmp_1 += value[0] + " ";
+                tmp_2 += key + " ";
+            }
         }
-        let entries = [[tmp_1, false], [tmp_2, false], [tmp_3, true]]
-        return this.shuffle(entries)
+        let entries = [
+            [tmp_1, false],
+            [tmp_2, false],
+            [tmp_3, true],
+        ];
+        return this.shuffle(entries);
     }
 
     shuffle([...arr]) {
-        let current_index = arr.length - 1
-        let random_index
+        let current_index = arr.length - 1;
+        let random_index;
         for (let i = current_index; i > 0; i--) {
             random_index = Math.floor(Math.random() * (current_index + 1));
-            [arr[current_index], arr[random_index]] = [arr[random_index], arr[current_index]]
+            [arr[current_index], arr[random_index]] = [
+                arr[random_index],
+                arr[current_index],
+            ];
         }
-        return arr
+        return arr;
     }
-
 }
 
 class Questions {
     constructor(question_count, words_all) {
         this.words_all = words_all;
-        this.words_grouped = this.group_words()
+        this.words_grouped = this.group_words();
         this.question_count = question_count;
         this.questions = this.collect_word_groups();
     }
@@ -56,23 +70,22 @@ class Questions {
     collect_word_groups() {
         let arr_return = [];
         for (let i = 1; i <= this.question_count; i++) {
-            arr_return.push(new WordGroup(this.words_all, this.words_grouped))
+            arr_return.push(new WordGroup(this.words_all, this.words_grouped));
         }
         return arr_return;
     }
 
     group_words() {
         const words_grouped = {};
-        this.words_all.forEach(word => {
+        this.words_all.forEach((word) => {
             const length = word.length;
-            if (typeof (words_grouped[length]) === 'undefined') {
+            if (typeof words_grouped[length] === "undefined") {
                 words_grouped[length] = [];
             }
             words_grouped[length].push(word);
         });
         return words_grouped;
     }
-
 }
 
 class WordGroup {
@@ -85,7 +98,8 @@ class WordGroup {
     }
 
     random_word() {
-        const word_return = this.words_all[Math.floor(Math.random() * this.words_all.length)];
+        const word_return =
+            this.words_all[Math.floor(Math.random() * this.words_all.length)];
         return word_return;
     }
 
@@ -93,10 +107,10 @@ class WordGroup {
         const words_tmp = [];
         for (let i = 1; i <= this.count; i++) {
             while (true) {
-                const word_tmp = this.random_word(this.words_all)
+                const word_tmp = this.random_word(this.words_all);
                 if (!words_tmp.includes(word_tmp)) {
                     words_tmp.push(word_tmp);
-                    break
+                    break;
                 }
             }
         }
@@ -105,52 +119,53 @@ class WordGroup {
 
     collect_similar() {
         const words_return = {};
-        this.words_simple.forEach(word => {
+        this.words_simple.forEach((word) => {
             words_return[word] = [];
             let distance = 1;
-            for (let i = 0; i <= 1; i++) {
-                // monkeyfind
-                let tries = 0
-                while (true) {
-                    tries += 1
-                    const word_rnd = this.find_levenshtein(word, distance);
-                    if (tries % 30 === 0) {
-                        distance += 1;
-                    } else if (tries > 500) {
-                        words_return[word].push(word_rnd)
-                        break
-                    }
-                    if (!word_rnd) { continue }
-                    if (!words_return[word].includes(word_rnd)) {
-                        words_return[word].push(word_rnd)
-                        break
-                    }
+            // monkeyfind
+            let tries = 0;
+            while (true) {
+                tries += 1;
+                const word_rnd = this.find_levenshtein(word, distance);
+                if (tries % 50 === 0) {
+                    distance += 1;
+                } else if (tries > 500) {
+                    words_return[word].push(word_rnd);
+                    break;
+                }
+                if (!word_rnd) {
+                    continue;
+                }
+                if (!words_return[word].includes(word_rnd)) {
+                    words_return[word].push(word_rnd);
+                    break;
                 }
             }
-        })
+        });
         return words_return;
     }
 
     camelCase() {
         let words_tmp = [...this.words_simple].map((val, i) => {
             if (i > 0) {
-                return val.substring(0, 1).toUpperCase() + val.substring(1)
+                return val.substring(0, 1).toUpperCase() + val.substring(1);
             } else {
-                return val
+                return val;
             }
-        })
-        return words_tmp.join("")
+        });
+        return words_tmp.join("");
     }
 
     snake_case() {
-        return this.words_simple.join("_")
+        return this.words_simple.join("_");
     }
 
     find_levenshtein(word, distance) {
-        const length = this.words_grouped[word.length].length
-        const word_rnd = this.words_grouped[word.length][Math.floor(Math.random() * length)]
+        const length = this.words_grouped[word.length].length;
+        const word_rnd =
+            this.words_grouped[word.length][Math.floor(Math.random() * length)];
         if (word_rnd === word) {
-            return false
+            return false;
         }
         if (this.levenshtein(word, word_rnd) <= distance) {
             return word_rnd;
@@ -167,11 +182,14 @@ class WordGroup {
             arr[i] = [i];
             for (let j = 1; j <= s.length; j++) {
                 arr[i][j] =
-                    i === 0 ? j : Math.min(
-                        arr[i - 1][j] + 1,
-                        arr[i][j - 1] + 1,
-                        arr[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1)
-                    );
+                    i === 0
+                        ? j
+                        : Math.min(
+                              arr[i - 1][j] + 1,
+                              arr[i][j - 1] + 1,
+                              arr[i - 1][j - 1] +
+                                  (s[j - 1] === t[i - 1] ? 0 : 1)
+                          );
             }
         }
         return arr[t.length][s.length];
@@ -179,10 +197,10 @@ class WordGroup {
 }
 
 function main() {
-    const count = 20
-    const questions = new Questions(count, words_all)
-    const interface = new Interface()
-    interface.main(questions.questions[0])
+    const count = 20;
+    const questions = new Questions(count, words_all);
+    const interface = new Interface();
+    interface.main(questions.questions[0]);
 }
 
-main()
+main();
