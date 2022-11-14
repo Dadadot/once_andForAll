@@ -1,6 +1,8 @@
 // button.addEventListener("click", function() {
 //     write_html();
 // });
+
+// don't delete
 console.log("here");
 
 class Interface {
@@ -14,27 +16,56 @@ class Interface {
 
     main(words) {
         this.words = words;
-        this.output.innerHTML = words.camelCase();
-        let entries = this.prepare_output();
+        this.output.innerHTML = words.snake_case();
+        const entries = this.prepare_output();
+        let answer = null;
+        entries.forEach((val, key) => {
+            if (val[1]) {
+                answer = key + 1;
+            }
+        });
         this.b1.innerHTML = entries[0][0];
         this.b2.innerHTML = entries[1][0];
         this.b3.innerHTML = entries[2][0];
+        interval = setInterval(user_input, 1000 / FPS);
+        return answer;
+    }
+
+    user_input(answer) {
+        result = null;
+        result = this.b1.addEventListener("click", function () {
+            answer === 1 ? true : false;
+        });
+        this.b2.addEventListener("click", function () {
+            answer === 2 ? true : false;
+        });
+        this.b3.addEventListener("click", function () {
+            answer === 2 ? true : false;
+        });
+        return result ? true : false;
     }
 
     prepare_output() {
-        const word1 = this.words.words_simple[0];
-        let tmp_1 = ""
-        let tmp_2 = ""
+        let tmp_1 = "";
+        let tmp_2 = "";
         let tmp_3 = this.words.words_simple.join(" ");
-        console.log(this.words.words);
+        let first = true;
+        let flip = Math.floor(Math.random() * 2);
         for (const [key, value] of Object.entries(this.words.words)) {
-            let flip = Math.floor(Math.random() * 2);
-            if ((flip == 0)) {
+            if (first) {
+                tmp_1 += key + " ";
+                tmp_2 += key + " ";
+                first = false;
+                continue;
+            }
+            if (flip == 0) {
                 tmp_1 += key + " ";
                 tmp_2 += value[0] + " ";
+                flip = 1;
             } else {
                 tmp_1 += value[0] + " ";
                 tmp_2 += key + " ";
+                flip = 0;
             }
         }
         let entries = [
@@ -90,7 +121,7 @@ class Questions {
 
 class WordGroup {
     constructor(words_all, words_grouped) {
-        this.count = Math.floor(Math.random() * 3) + 2;
+        this.count = Math.floor(Math.random() * 3) + 3;
         this.words_all = words_all;
         this.words_grouped = words_grouped;
         this.words_simple = this.collect_words();
@@ -200,7 +231,17 @@ function main() {
     const count = 20;
     const questions = new Questions(count, words_all);
     const interface = new Interface();
-    interface.main(questions.questions[0]);
+    let counter = document.getElementById("counter");
+    let snake_count = 0;
+    let camel_count = 0;
+    let count_tmp = 0;
+    for (let i = 0; i < 20; i++) {
+        let result = interface.main(questions.questions[i]);
+        if (result) {
+            count_tmp += 1;
+        }
+        counter.innerHTML = `${count_tmp}`;
+    }
 }
 
 main();
